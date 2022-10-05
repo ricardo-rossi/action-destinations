@@ -131,7 +131,7 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
-      validateSchema(payload, this.schema, { schemaKey })
+      validateSchema(payload, this.schema, { schemaKey, statsContext: bundle.statsContext })
       results.push({ output: 'Payload validated' })
     }
 
@@ -202,8 +202,12 @@ export class Action<Settings, Payload extends JSONLikeObject> extends EventEmitt
     const fn = this.definition.dynamicFields?.[field]
     if (typeof fn !== 'function') {
       return {
-        data: [],
-        pagination: {}
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
       }
     }
 
